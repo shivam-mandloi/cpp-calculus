@@ -20,7 +20,16 @@ public:
         return node;
     }
 
-    void PrintFunction(struct Node *node)
+    int Priority(struct Node *node)
+    {
+        if(node->value == "+" || node->value == "-" || node->type == FUNCTION)
+            return 1;
+        if(node->value == "*" || node->value == "/")
+            return 2;
+        return 3;
+    }
+
+    void PrintWithPriority(struct Node *node, int priority)
     {
         /*
             Page No. 8
@@ -30,16 +39,18 @@ public:
             return;
         else if (node->type == OPERATOR)
         {
-            std::cout << "(";
-            PrintFunction(node->leftNode);
+            if(priority > Priority(node))
+                std::cout << "(";
+            PrintWithPriority(node->leftNode, Priority(node));
             std::cout << node->value;
-            PrintFunction(node->rightNode);
-            std::cout << ")";
+            PrintWithPriority(node->rightNode, Priority(node));
+            if(priority > Priority(node))
+                std::cout << ")";
         }
         else if (node->type == FUNCTION)
         {
             std::cout << node->value << "(";
-            PrintFunction(node->leftNode);
+            PrintWithPriority(node->leftNode, Priority(node));
             std::cout << ")";
         }
         else if (node->type == VARIABLE)
@@ -50,5 +61,13 @@ public:
         {
             std::cout << node->value;
         }
+    }
+
+    void PrintFunction(struct Node *node)
+    {
+        /*
+            used to call the PrintWithPriority function
+        */
+        PrintWithPriority(node, Priority(node));
     }
 };
