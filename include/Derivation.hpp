@@ -8,6 +8,9 @@ class HelpingFunction
 public:
     struct Node *CopyFunction(struct Node *node)
     {
+        /*
+            used to copy node, very usefull in derivation because it allow us to not change actual function value
+        */
         if (!node)
             return nullptr;
         struct Node *newNode = new Node();
@@ -17,6 +20,47 @@ public:
         newNode->rightNode = CopyFunction(node->rightNode);
         return newNode;
     }
+
+    struct Node *OptimizeFunction(struct Node *left , struct Node *right)
+    {
+        /*
+            used in derivation Function where case is operator node *
+            this function used when two function are multiplied, y = F(x) * G(x)
+            there are four cases can be encounter
+            when 
+            f(x) = 2(constant) and g(x) = 3(constant) => y = 6
+            f(x) = 2(constant) and g(x) = 3 * x^2 (example) => y = 6 * x^2
+            f(x) = 2(x+2) and g(x) = 3(constant) => y = 6(x+2)
+            f(x) = 2(x+2) and g(x) = 3 * x^2 => y = 6 * (x+2) * x^2
+        */
+        if (right->type == CONSTANT)
+        {
+            if (left->type == CONSTANT)
+                left->value = std::to_string(std::stoi(left->value) * std::stoi(right->value));
+            else if (left->type == OPERATOR && left->value == "*" && left->leftNode->type == CONSTANT)
+                left->leftNode->value = std::to_string(std::stoi(right->value) * std::stoi(left->leftNode->value));
+            else
+                left = fn.CreateNode(OPERATOR, "*", right, left);
+        }
+        else if (right->type == OPERATOR && right->value == "*" && right->leftNode->type == CONSTANT)
+        {
+            if (left->type == CONSTANT)
+                right->leftNode->value = std::to_string(std::stoi(left->value) * std::stoi(right->leftNode->value));
+            else if (left->type == OPERATOR && left->value == "*" && left->leftNode->type == CONSTANT)
+                right = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, std::to_string(std::stoi(left->leftNode->value) * std::stoi(right->leftNode->value))), fn.CreateNode(OPERATOR, "*", left->rightNode, right->rightNode));
+            else
+                right = fn.CreateNode(OPERATOR, "*", right, left);
+            left = right;
+        }
+        else
+        {
+            left = fn.CreateNode(OPERATOR, "*", left, right);
+        }
+        return left;
+    }
+
+private:
+    Function fn;
 };
 
 class Derivation
@@ -24,9 +68,30 @@ class Derivation
 public:
     struct Node *OperatorNode(struct Node *node)
     {
+        /*
+            function describe how different operator behave with derivative
+        */
         struct Node *newNode;
         if (node->value == "*")
         {
+            struct Node *leftDer = Find_Derivative(node->leftNode);
+            struct Node *rightDer = Find_Derivative(node->rightNode);
+            if (leftDer->value != "0")
+                leftDer = hf.OptimizeFunction(leftDer, node->rightNode);
+            else
+                leftDer = nullptr;
+            if (rightDer->value != "0")
+                rightDer = hf.OptimizeFunction(rightDer, node->leftNode);
+            else
+                rightDer = nullptr;
+            if (rightDer && leftDer)
+                newNode = fn.CreateNode(OPERATOR, "+", leftDer, rightDer);
+            else if (rightDer)
+                newNode = rightDer;
+            else if (leftDer)
+                newNode = leftDer;
+            else
+                newNode = fn.CreateNode(CONSTANT, "0");
         }
 
         if (node->value == "^")
@@ -87,11 +152,17 @@ public:
 
     struct Node *ConstantNode(struct Node *node)
     {
+        /*
+            constant derivative always zero
+        */
         return fn.CreateNode(CONSTANT, "0");
     }
 
     struct Node *VariableNode(struct Node *node)
     {
+        /*
+            Any variable with power one give derivative 1
+        */
         return fn.CreateNode(CONSTANT, "1");
     }
 
@@ -102,6 +173,10 @@ public:
 
     struct Node *Find_Derivative(struct Node *node)
     {
+        /*
+            used by user to find derivative, apart from user it also used by different derivative function
+            like the OperatorNode to find derivative if they encounter function which does not use operator
+        */
         struct Node *newnode = hf.CopyFunction(node);
         if (node->type == CONSTANT)
             return ConstantNode(newnode);

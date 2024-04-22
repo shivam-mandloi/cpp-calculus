@@ -5,8 +5,8 @@ int main()
 {
     Function fn;
     Derivation dr;
-    // a * x**2 + b * x + c
-    struct Node *node = fn.CreateNode(OPERATOR,"+",fn.CreateNode(OPERATOR, "+", fn.CreateNode(OPERATOR, "^", fn.CreateNode(VARIABLE, "x"), fn.CreateNode(CONSTANT, "15")), fn.CreateNode(VARIABLE, "x")),fn.CreateNode(CONSTANT, "1"));
+    // 2(x^3 + 2x + 3)^4
+    struct Node *node = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, "2"), fn.CreateNode(OPERATOR, "^", fn.CreateNode(OPERATOR, "+", fn.CreateNode(OPERATOR, "^", fn.CreateNode(VARIABLE, "x"), fn.CreateNode(CONSTANT, "2")), fn.CreateNode(OPERATOR, "+", fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, "2"), fn.CreateNode(VARIABLE, "x")), fn.CreateNode(CONSTANT, "3"))),fn.CreateNode(CONSTANT, "4")));
     fn.PrintFunction(node);
     std::cout << std::endl;
     struct Node* der = dr.Find_Derivative(node);
