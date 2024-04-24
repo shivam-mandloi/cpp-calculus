@@ -11,5 +11,3 @@ struct Node
     struct Node *rightNode;
     Node(): type(CONSTANT), value("1"), leftNode(nullptr), rightNode(nullptr){}
 };
-
-

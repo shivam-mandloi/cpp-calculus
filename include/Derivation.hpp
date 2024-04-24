@@ -21,13 +21,13 @@ public:
         return newNode;
     }
 
-    struct Node *OptimizeFunction(struct Node *left , struct Node *right)
+    struct Node *OptimizeFunction(struct Node *left, struct Node *right)
     {
         /*
             used in derivation Function where case is operator node *
             this function used when two function are multiplied, y = F(x) * G(x)
             there are four cases can be encounter
-            when 
+            when
             f(x) = 2(constant) and g(x) = 3(constant) => y = 6
             f(x) = 2(constant) and g(x) = 3 * x^2 (example) => y = 6 * x^2
             f(x) = 2(x+2) and g(x) = 3(constant) => y = 6(x+2)
@@ -57,6 +57,24 @@ public:
             left = fn.CreateNode(OPERATOR, "*", left, right);
         }
         return left;
+    }
+
+    struct Node *DerivativeTrigonometryFunction(struct Node *node)
+    {
+        struct Node *newNode;
+        if (node->value == "sin")
+            newNode = fn.CreateNode(FUNCTION, "cos", node->leftNode);
+        if (node->value == "cos")
+            newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, "-1"), fn.CreateNode(FUNCTION, "sin", node->leftNode));
+        if (node->value == "tan")
+            newNode = fn.CreateNode(OPERATOR, "^", fn.CreateNode(FUNCTION, "sec", node->leftNode), fn.CreateNode(CONSTANT, "2"));
+        if (node->value == "cot")
+            newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, "-1"), fn.CreateNode(OPERATOR, "^", fn.CreateNode(FUNCTION, "csc", node->leftNode), fn.CreateNode(CONSTANT, "2")));
+        if (node->value == "sec")
+            newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(FUNCTION, "sec", node->leftNode), fn.CreateNode(FUNCTION, "tan", node->leftNode));
+        if (node->value == "csc")
+            newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, "-1"), newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(FUNCTION, "sec", node->leftNode), fn.CreateNode(FUNCTION, "tan", node->leftNode)));
+        return newNode;
     }
 
 private:
@@ -168,7 +186,13 @@ public:
 
     struct Node *FunctionNode(struct Node *node)
     {
-        return node;
+        struct Node *trigDer = hf.DerivativeTrigonometryFunction(node);
+        struct Node *valueDer = Find_Derivative(node->leftNode);
+        if (valueDer->value == "0")
+            return fn.CreateNode(CONSTANT, "0");
+        if (valueDer->value == "1")
+            return trigDer;
+        return fn.CreateNode(OPERATOR, "*", valueDer, trigDer);
     }
 
     struct Node *Find_Derivative(struct Node *node)
