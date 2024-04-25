@@ -6,10 +6,12 @@
 class HelpingFunction
 {
 public:
+    // Copy a function node to create a deep copy.
     struct Node *CopyFunction(struct Node *node)
     {
         /*
-            used to copy node, very usefull in derivation because it allow us to not change actual function value
+            This function creates a deep copy of a given function node.
+            It is particularly useful in differentiation as it allows us to manipulate a copy of the function without altering the original.
         */
         if (!node)
             return nullptr;
@@ -21,17 +23,17 @@ public:
         return newNode;
     }
 
+    // Optimize a function node representing a multiplication operation.
     struct Node *OptimizeFunction(struct Node *left, struct Node *right)
     {
         /*
-            used in derivation Function where case is operator node *
-            this function used when two function are multiplied, y = F(x) * G(x)
-            there are four cases can be encounter
-            when
-            f(x) = 2(constant) and g(x) = 3(constant) => y = 6
-            f(x) = 2(constant) and g(x) = 3 * x^2 (example) => y = 6 * x^2
-            f(x) = 2(x+2) and g(x) = 3(constant) => y = 6(x+2)
-            f(x) = 2(x+2) and g(x) = 3 * x^2 => y = 6 * (x+2) * x^2
+            This function is used in the context of function differentiation, specifically for the operator node '*' and '/'.
+            It handles cases where two functions are multiplied together, optimizing the resulting function node.
+            There are four potential cases:
+                1. When both functions are constants.
+                2. When one function is a constant and the other is a function.
+                3. When one function is a function and the other is a constant.
+                4. When both functions are functions.
         */
         if (left->value == "0" || right->value == "0")
             return fn.CreateNode(CONSTANT, "0");
@@ -61,6 +63,7 @@ public:
         return left;
     }
 
+    // Derivative of trigonometric functions.
     struct Node *DerivativeTrigonometryFunction(struct Node *node)
     {
         struct Node *newNode;
@@ -80,7 +83,7 @@ public:
     }
 
 private:
-    Function fn;
+    Function fn; // Instance of the Function class for function creation.
 };
 
 class Derivation
@@ -89,11 +92,12 @@ public:
     struct Node *OperatorNode(struct Node *node)
     {
         /*
-            function describe how different operator behave with derivative
+            This function describes how different operators behave with respect to differentiation.
         */
         struct Node *newNode;
         if (node->value == "*")
         {
+            // Derivative of product of two functions.
             struct Node *leftDer = Find_Derivative(node->leftNode);
             struct Node *rightDer = Find_Derivative(node->rightNode);
             if (leftDer->value != "0")
@@ -116,6 +120,7 @@ public:
 
         if (node->value == "^")
         {
+            // Derivative of power function.
             struct Node *tempNode = Find_Derivative(node->leftNode);
             struct Node *tempRightNode = node->rightNode;
             if (tempNode->type == OPERATOR)
@@ -146,6 +151,7 @@ public:
 
         if (node->value == "+" || node->value == "-")
         {
+            // Derivative of addition or subtraction.
             struct Node *leftDer = Find_Derivative(node->leftNode);
             struct Node *rightDer = Find_Derivative(node->rightNode);
             if (leftDer->type == CONSTANT && leftDer->value == "0")
@@ -166,6 +172,7 @@ public:
 
         else if (node->value == "/")
         {
+            // Derivative of division.
             if (node->leftNode->type == CONSTANT && node->rightNode->type == CONSTANT)
                 return fn.CreateNode(CONSTANT, "0");
             struct Node *leftNode = Find_Derivative(node->leftNode);
@@ -196,22 +203,24 @@ public:
         return newNode;
     }
 
+    // Derivative of constant nodes.
     struct Node *ConstantNode(struct Node *node)
     {
         /*
-            constant derivative always zero
+            The derivative of a constant is always zero.
         */
         return fn.CreateNode(CONSTANT, "0");
     }
 
+    // Derivative of variable nodes.
     struct Node *VariableNode(struct Node *node)
     {
         /*
-            Any variable with power one give derivative 1
+            The derivative of any variable with power one is 1.
         */
         return fn.CreateNode(CONSTANT, "1");
     }
-
+    // Derivative of function nodes.
     struct Node *FunctionNode(struct Node *node)
     {
         struct Node *trigDer = hf.DerivativeTrigonometryFunction(node);
@@ -223,11 +232,13 @@ public:
         return fn.CreateNode(OPERATOR, "*", valueDer, trigDer);
     }
 
+    // Find the derivative of a function node.
     struct Node *Find_Derivative(struct Node *node)
     {
         /*
-            used by user to find derivative, apart from user it also used by different derivative function
-            like the OperatorNode to find derivative if they encounter function which does not use operator
+            This function calculates the derivative of a given function node.
+            It is used both directly by the user and internally by other derivative functions.
+            It handles cases based on the type of node (constant, variable, operator, or function).
         */
         struct Node *newnode = hf.CopyFunction(node);
         if (node->type == CONSTANT)
@@ -240,6 +251,6 @@ public:
     }
 
 private:
-    Function fn;
-    HelpingFunction hf;
+    Function fn;        // Instance of the Function class for function creation.
+    HelpingFunction hf; // Instance of the HelpingFunction class for auxiliary functions.
 };
