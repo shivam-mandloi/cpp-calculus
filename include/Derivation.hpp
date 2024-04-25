@@ -33,6 +33,8 @@ public:
             f(x) = 2(x+2) and g(x) = 3(constant) => y = 6(x+2)
             f(x) = 2(x+2) and g(x) = 3 * x^2 => y = 6 * (x+2) * x^2
         */
+        if (left->value == "0" || right->value == "0")
+            return fn.CreateNode(CONSTANT, "0");
         if (right->type == CONSTANT)
         {
             if (left->type == CONSTANT)
@@ -164,6 +166,32 @@ public:
 
         else if (node->value == "/")
         {
+            if (node->leftNode->type == CONSTANT && node->rightNode->type == CONSTANT)
+                return fn.CreateNode(CONSTANT, "0");
+            struct Node *leftNode = Find_Derivative(node->leftNode);
+            if (node->rightNode->type == CONSTANT)
+                return fn.CreateNode(OPERATOR, "/", leftNode, node->rightNode);
+            struct Node *rightNode = Find_Derivative(node->rightNode);
+            leftNode = hf.OptimizeFunction(leftNode, node->rightNode);
+            if (node->leftNode->type == CONSTANT)
+                rightNode = hf.OptimizeFunction(node->leftNode, rightNode);
+            else
+                rightNode = hf.OptimizeFunction(rightNode, node->leftNode);
+            struct Node *power;
+            if (node->rightNode->type == OPERATOR && node->rightNode->value == "^")
+                node->rightNode = fn.CreateNode(OPERATOR, "^", node->rightNode->leftNode, hf.OptimizeFunction(fn.CreateNode(CONSTANT, "2"), node->rightNode->rightNode));
+            else
+                power = fn.CreateNode(CONSTANT, "2");
+            if (leftNode->value == "0")
+            {
+                leftNode = hf.OptimizeFunction(fn.CreateNode(CONSTANT, "-1"), rightNode);
+
+                newNode = fn.CreateNode(OPERATOR, "/", leftNode, node->rightNode);
+            }
+            else
+            {
+                newNode = fn.CreateNode(OPERATOR, "/", fn.CreateNode(OPERATOR, "-", leftNode, rightNode), node->rightNode);
+            }
         }
         return newNode;
     }
