@@ -79,6 +79,10 @@ public:
             newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(FUNCTION, "sec", node->leftNode), fn.CreateNode(FUNCTION, "tan", node->leftNode));
         if (node->value == "csc")
             newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, "-1"), newNode = fn.CreateNode(OPERATOR, "*", fn.CreateNode(FUNCTION, "sec", node->leftNode), fn.CreateNode(FUNCTION, "tan", node->leftNode)));
+        if(node->value == "exp")
+            newNode = fn.CreateNode(FUNCTION, "exp", node->leftNode);
+        if(node->value == "log")
+            newNode = fn.CreateNode(OPERATOR, "/", fn.CreateNode(CONSTANT, "1"), node->leftNode);
         return newNode;
     }
 
