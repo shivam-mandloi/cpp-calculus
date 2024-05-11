@@ -40,18 +40,18 @@ public:
         if (right->type == CONSTANT)
         {
             if (left->type == CONSTANT)
-                left->value = std::to_string(std::stoi(left->value) * std::stoi(right->value));
+                left->value = std::to_string(std::stod(left->value) * std::stod(right->value));
             else if (left->type == OPERATOR && left->value == "*" && left->leftNode->type == CONSTANT)
-                left->leftNode->value = std::to_string(std::stoi(right->value) * std::stoi(left->leftNode->value));
+                left->leftNode->value = std::to_string(std::stod(right->value) * std::stod(left->leftNode->value));
             else
                 left = fn.CreateNode(OPERATOR, "*", right, left);
         }
         else if (right->type == OPERATOR && right->value == "*" && right->leftNode->type == CONSTANT)
         {
             if (left->type == CONSTANT)
-                right->leftNode->value = std::to_string(std::stoi(left->value) * std::stoi(right->leftNode->value));
+                right->leftNode->value = std::to_string(std::stod(left->value) * std::stod(right->leftNode->value));
             else if (left->type == OPERATOR && left->value == "*" && left->leftNode->type == CONSTANT)
-                right = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, std::to_string(std::stoi(left->leftNode->value) * std::stoi(right->leftNode->value))), fn.CreateNode(OPERATOR, "*", left->rightNode, right->rightNode));
+                right = fn.CreateNode(OPERATOR, "*", fn.CreateNode(CONSTANT, std::to_string(std::stod(left->leftNode->value) * std::stod(right->leftNode->value))), fn.CreateNode(OPERATOR, "*", left->rightNode, right->rightNode));
             else
                 right = fn.CreateNode(OPERATOR, "*", right, left);
             left = right;
@@ -131,7 +131,7 @@ public:
             {
                 if (tempNode->value == "*" && tempNode->leftNode->type == CONSTANT)
                 {
-                    tempNode->leftNode->value = std::to_string(std::stoi(tempNode->leftNode->value) * std::stoi(node->rightNode->value));
+                    tempNode->leftNode->value = std::to_string(std::stod(tempNode->leftNode->value) * std::stod(node->rightNode->value));
                     tempRightNode = tempNode;
                 }
                 else
@@ -143,14 +143,14 @@ public:
             {
                 if (tempNode->value != "1")
                 {
-                    tempNode->value = std::to_string(std::stoi(tempNode->value) * std::stoi(node->rightNode->value));
+                    tempNode->value = std::to_string(std::stod(tempNode->value) * std::stod(node->rightNode->value));
                     tempRightNode = tempNode;
                 }
             }
-            if (std::stoi(node->rightNode->value) - 1 == 1)
+            if (std::stod(node->rightNode->value) - 1 == 1)
                 newNode = fn.CreateNode(OPERATOR, "*", tempRightNode, node->leftNode);
             else
-                newNode = fn.CreateNode(OPERATOR, "*", tempRightNode, fn.CreateNode(OPERATOR, "^", node->leftNode, fn.CreateNode(CONSTANT, std::to_string(std::stoi(node->rightNode->value) - 1))));
+                newNode = fn.CreateNode(OPERATOR, "*", tempRightNode, fn.CreateNode(OPERATOR, "^", node->leftNode, fn.CreateNode(CONSTANT, std::to_string(std::stod(node->rightNode->value) - 1))));
         }
 
         if (node->value == "+" || node->value == "-")
@@ -165,9 +165,9 @@ public:
             else if (leftDer->type == CONSTANT && rightDer->type == CONSTANT)
             {
                 if (node->value == "+")
-                    rightDer->value = std::to_string(std::stoi(leftDer->value) + std::stoi(rightDer->value));
+                    rightDer->value = std::to_string(std::stod(leftDer->value) + std::stod(rightDer->value));
                 else
-                    rightDer->value = std::to_string(std::stoi(leftDer->value) - std::stoi(rightDer->value));
+                    rightDer->value = std::to_string(std::stod(leftDer->value) - std::stod(rightDer->value));
                 newNode = rightDer;
             }
             else
