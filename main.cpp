@@ -12,7 +12,7 @@ int main()
     // std::cout << std::endl;
     // struct Node *der = dr.Find_Derivative(node);
     // fn.PrintFunction(der);
-    std::string str = "sin(sin(a + log(x/2)) * 2 + 1) + log(x) * 2";
+    std::string str = "sin(x/2) + log(sin (x / 2 * 3 + log(x) + 2))";
     ConvertToExpression ctf;
     ctf.Convert(str);
     // std::cout << std::endl;

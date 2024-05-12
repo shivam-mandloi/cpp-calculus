@@ -89,120 +89,73 @@ public:
         return funcVec;
     }
 
-    void FunctionPostFix(std::vector<std::string> vec, std::vector<std::string> *postFunc, int *index)
+    int FindClosingParen(std::vector<std::string> vec, int index)
     {
         std::vector<std::string> stack;
-        std::vector<std::string> parenStack;
-        while(*index < vec.size())
+        while(stack.size() || vec[index] != ")")
         {
-            //PrintVector(*postFunc);
-            if(vec[*index] == ")")
-            {
-                if(!parenStack.size())
-                    break;
-                while(stack.back() != "(")
-                {
-                    postFunc->push_back(stack.back());
-                    stack.pop_back();
-                }
-                stack.pop_back();
-                parenStack.pop_back();
-            }
-            else if(vec[*index] == "(")
-            {
+            if(vec[index] == "(")
                 stack.push_back("(");
-                parenStack.push_back("(");
-            }
-            else if(IsOperator(vec[*index]))
-            {
-                while(stack.size() && Priority(stack.back()) > Priority(vec[*index]))
-                {
-                    postFunc->push_back(stack.back());
-                    stack.pop_back();
-                }
-                stack.push_back(vec[*index]);
-            }
-            else if(IsFunction(vec[*index]))
-            {
-                postFunc->push_back(vec[*index]);
-                index+=2;
-                postFunc->push_back("(");
-                FunctionPostFix(vec, postFunc, index);
-                postFunc->push_back(")");
-                if(stack.size())
-                {
-                    postFunc->push_back(stack.back());
-                    stack.pop_back();
-                }
-            }
-            else
-            {
-                postFunc->push_back(vec[*index]);
-            }
-            (*index)+=1;
+            else if(vec[index] == ")")
+                stack.pop_back();
+            index+=1;
         }
-        while(stack.size())
-        {
-            postFunc->push_back(stack.back());
-            stack.pop_back();
-        }
+        return index;
     }
 
-    std::vector<std::string> ConvertToPostFix(std::vector<std::string> func)
+    std::vector<std::string> ConvertToPostFix(std::vector<std::string> func, int endIndex)
     {
         /*
             This function converts an infix expression to a postfix expression.
         */
-        std::vector<std::string> funcVec;
+        static std::vector<std::string> vecFunc;
         std::vector<std::string> stack;
-        int index = 0;
-        while(index < func.size())
+        static int startIndex = 0;
+        while(startIndex < endIndex)
         {
-            // PrintVector(funcVec);
-            // std::cout << index << std::endl;
-            if(func[index] == ")")
+            if(func[startIndex] == "(")
             {
-                while(func[index] == "(")
+                stack.push_back(func[startIndex]);
+            }
+            else if(func[startIndex] == ")")
+            {
+                while(stack.back() != "(")
                 {
-                    funcVec.push_back(stack.back());
+                    vecFunc.push_back(stack.back());
                     stack.pop_back();
                 }
                 stack.pop_back();
             }
-            else if (IsOperator(func[index]))
+            else if(IsOperator(func[startIndex]))
             {
-                while(stack.size() && Priority(stack.back()) > Priority(func[index]))
+                while(stack.size() && Priority(func[startIndex]) < Priority(stack.back()))
                 {
-                    funcVec.push_back(stack.back());
+                    vecFunc.push_back(stack.back());
                     stack.pop_back();
                 }
-                stack.push_back(func[index]);
+                stack.push_back(func[startIndex]);
             }
-            else if (IsFunction(func[index]))
+            else if(IsFunction(func[startIndex]))
             {
-                funcVec.push_back(func[index]);
-                index+=2;
-                funcVec.push_back("(");
-                FunctionPostFix(func, &funcVec, &index);
-                funcVec.push_back(")");
-                if(stack.size())
-                {
-                    funcVec.push_back(stack.back());
-                    stack.pop_back();
-                }
+                vecFunc.push_back(func[startIndex]);
+                startIndex += 2;
+                int temp = FindClosingParen(func, startIndex);
+                vecFunc.push_back("(");
+                ConvertToPostFix(func, temp);
+                vecFunc.push_back(")");
             }
             else
             {
-                funcVec.push_back(func[index]);
+                vecFunc.push_back(func[startIndex]);
             }
-            index++;
+            startIndex += 1;
         }
         while(stack.size())
         {
-            funcVec.push_back(stack.back());
+            vecFunc.push_back(stack.back());
             stack.pop_back();
         }
-        return funcVec;
+        return vecFunc;
     }
 
     struct Node *Convert(std::string func)
@@ -213,7 +166,7 @@ public:
         */
         std::vector<std::string> funcVec = ConvertToVector(func);
         PrintVector(funcVec);
-        PrintVector(ConvertToPostFix(funcVec));
+        PrintVector(ConvertToPostFix(funcVec, funcVec.size()));
         return nullptr;
     }
 };
