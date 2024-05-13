@@ -1,0 +1,17 @@
+// 2(x^3 + 2x + 3)^4
+// struct Node *node = fn.CreateNode(OPERATOR, "-", fn.CreateNode(CONSTANT, "1"), fn.CreateNode(OPERATOR, "^", fn.CreateNode(VARIABLE, "x"), fn.CreateNode(CONSTANT, "0.11111")));
+// fn.PrintFunction(node);
+// std::cout << std::endl;
+// struct Node *der = dr.Find_Derivative(node);
+// fn.PrintFunction(der);
+
+
+// ConvertToExpression ctf;
+// Derivation dr;
+// Function fn;
+
+// std::string a = "log(sin(x) - x/2 + 4)";
+// struct Node *fun = ctf.Convert(a);
+// struct Node *der = dr.Find_Derivative(fun);
+// fn.PrintFunction(der);
+// std::cout << std::endl;

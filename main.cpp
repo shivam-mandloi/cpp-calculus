@@ -4,17 +4,21 @@
 
 int main()
 {
-    Function fn;
-    Derivation dr;
-    // 2(x^3 + 2x + 3)^4
-    // struct Node *node = fn.CreateNode(OPERATOR, "-", fn.CreateNode(CONSTANT, "1"), fn.CreateNode(OPERATOR, "^", fn.CreateNode(VARIABLE, "x"), fn.CreateNode(CONSTANT, "0.11111")));
-    // fn.PrintFunction(node);
-    // std::cout << std::endl;
-    // struct Node *der = dr.Find_Derivative(node);
-    // fn.PrintFunction(der);
-    std::string str = "sin(x/2) + log(sin (x / 2 * 3 + log(x) + 2))";
-    ConvertToExpression ctf;
-    ctf.Convert(str);
-    // std::cout << std::endl;
+    std::string func;
+    std::cout << "Start Derivative :)" << std::endl;
+    while(func != "q")
+    {
+        std::string func;
+        ConvertToExpression ctf;
+        Derivation dr;
+        Function fn;
+        std::cout << "Enter Function: ";
+        std::getline(std::cin, func);
+        struct Node *fun = ctf.Convert(func);
+        struct Node *der = dr.Find_Derivative(fun);
+        std::cout << "Derivative of Function: ";
+        fn.PrintFunction(der);
+        std::cout << std::endl;
+    }
     return 0;
 }
